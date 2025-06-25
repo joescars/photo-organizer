@@ -8,10 +8,10 @@ from multiprocessing import Pool, cpu_count
 # --- CONFIGURATION ---
 input_folder = "/Users/joe/Code/photo-organizer/source"  # ← change this
 output_folder_base = "/Users/joe/Code/photo-organizer"  # Base folder for outputs
-black_threshold = 30        # Pixel value below which it's considered "black"
-black_ratio_cutoff = 0.9    # 90% black = flag the image
-white_threshold = 225       # Pixel value above this is "white"
-white_ratio_cutoff = 0.9    # Flag if 90% of pixels are white
+black_threshold = 40        # Pixel value below which it's considered "black"
+black_ratio_cutoff = 0.85    # 85% black = flag the image
+white_threshold = 190        # Pixel value above this is "white"
+white_ratio_cutoff = 0.85    # Flag if 85% of pixels are white
 resize_dims = (192, 108)    # Downscale for speed; preserves aspect ratio
 blur_threshold = 300.0  # Lower = more blurry; tweak as needed
 
