@@ -5,3 +5,5 @@ source/
 .DS_Store
 black/
 white/
+has-faces/
+no-faces/

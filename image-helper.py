@@ -15,6 +15,74 @@ white_ratio_cutoff = 0.85    # Flag if 85% of pixels are white
 resize_dims = (192, 108)    # Downscale for speed; preserves aspect ratio
 blur_threshold = 300.0  # Lower = more blurry; tweak as needed
 
+# Initialize face detector (will be loaded once when needed)
+face_cascade = None
+
+def get_face_detector():
+    """Initialize face detector on first use"""
+    global face_cascade
+    if face_cascade is None:
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    return face_cascade
+
+def check_image_no_faces(image_path):
+    """Check for images without faces (returns path if NO faces found)"""
+    try:
+        img = cv2.imread(image_path)
+        if img is None or img.size == 0:
+            return image_path  # unreadable or corrupt
+        
+        # Convert to grayscale for face detection
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        
+        # Get face detector
+        detector = get_face_detector()
+        
+        # Detect faces
+        faces = detector.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(30, 30)
+        )
+        
+        # Return path if NO faces found
+        if len(faces) == 0:
+            return image_path
+            
+    except Exception as e:
+        return image_path  # Error = assume it's bad
+    return None
+
+def check_image_has_faces(image_path):
+    """Check for images with faces (returns path if faces ARE found)"""
+    try:
+        img = cv2.imread(image_path)
+        if img is None or img.size == 0:
+            return image_path  # unreadable or corrupt
+        
+        # Convert to grayscale for face detection
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        
+        # Get face detector
+        detector = get_face_detector()
+        
+        # Detect faces
+        faces = detector.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(30, 30)
+        )
+        
+        # Return path if faces ARE found
+        if len(faces) > 0:
+            return image_path
+            
+    except Exception as e:
+        return image_path  # Error = assume it's bad
+    return None
+
 def check_image_black(image_path):
     """Check for mostly black images"""
     try:
@@ -74,7 +142,7 @@ def check_image_blurry(image_path):
 def parse_arguments():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(description='Photo organizer - detect and move unwanted images')
-    parser.add_argument('check_type', choices=['black', 'white', 'blurry'], 
+    parser.add_argument('check_type', choices=['black', 'white', 'blurry', 'no-faces', 'has-faces'], 
                        help='Type of image check to perform')
     parser.add_argument('--input', '-i', default=input_folder,
                        help='Input folder containing images')
@@ -100,7 +168,9 @@ def main():
     check_functions = {
         'black': check_image_black,
         'white': check_image_white,
-        'blurry': check_image_blurry
+        'blurry': check_image_blurry,
+        'no-faces': check_image_no_faces,
+        'has-faces': check_image_has_faces
     }
     check_function = check_functions[args.check_type]
     
